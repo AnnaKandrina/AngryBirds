@@ -4,10 +4,54 @@ using System.Collections.Generic;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-
+using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace names
 {
+    public class Graphics : Window
+    {
+        public Graphics(double v0, double cosa, double sina)
+        {
+
+            Title = "Traectory";
+            this.Height = 576;
+
+            Canvas canv = new Canvas();
+            canv.Width = this.Width;
+            canv.Height = this.Height;
+            Polyline poly = new Polyline();
+            poly.Stroke = Brushes.Black;
+            poly.StrokeThickness = 2;
+            poly.Points = new PointCollection();
+
+
+
+            const double g = 9.80665;
+            double x = 0;
+            double y = 0;
+            double t = 0;
+            ValueTuple<double, double> coords = new ValueTuple<double, double>(x, y);
+            while (y >= 0)
+            {
+                coords.Item1 = x;
+                coords.Item2 = y;
+                t += 0.01;
+                x = v0 * cosa * t;
+                y = v0 * sina * t - g * t * t / 2;
+                Point pt = new Point(x, -y + this.Height);
+                poly.Points.Add(pt);
+
+            }
+            canv.Children.Add(poly);
+            Content = canv;
+
+        }
+
+
+    }
+
+
     public class Birds_Visual : Window
     {
 
@@ -62,32 +106,20 @@ namespace names
             stack.Children.Add(tb_velocity);
             stack.Children.Add(btn);
             Content = stack;
-
+            MessageBox.Show("Suggested values: angle = 45, velocity = 100", "Attention");
         }
 
 
         void ButtonOnClick(object sender, RoutedEventArgs args)
         {
             Button btn = args.Source as Button;
-            const double g = 9.80665;
-            double x = 0;
-            double y = 0;
-            double t = 0;
             double v0 = Convert.ToDouble(tb_velocity.Text);
             double cosa = Math.Cos(Convert.ToDouble(tb_angle.Text) * Math.PI / 180);
             double sina = Math.Sin(Convert.ToDouble(tb_angle.Text) * Math.PI / 180);
-            ValueTuple<double, double> coords = new ValueTuple<double, double>(x, y);
 
-            while (y >= 0)
-            {
-                coords.Item1 = x;
-                coords.Item2 = y;
-                t += 0.01;
-                x = v0 * cosa * t;
-                y = v0 * sina * t - g * t * t / 2;
-            }
 
-            MessageBox.Show(Convert.ToString(coords), "Trown object fell in");
+            Graphics graphics = new Graphics(v0, cosa, sina);
+            graphics.Show();
         }
 
     }
